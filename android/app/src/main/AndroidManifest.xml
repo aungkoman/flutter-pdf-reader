@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.mmsoftware100.kama">
    <application
-        android:label="Mm Health"
+        android:label="PhoMa"
         android:icon="@mipmap/ic_launcher">
 
        <!-- Sample AdMob App ID: ca-app-pub-3940256099942544~3347511713 -->

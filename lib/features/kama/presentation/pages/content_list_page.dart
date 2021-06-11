@@ -130,7 +130,7 @@ class _ContentListPageState extends State<ContentListPage> {
 
   Widget pdfContentListView(){
     return Padding(
-      padding: EdgeInsets.all(8),
+      padding: EdgeInsets.fromLTRB(8, 0, 8, 0),
       child: ListView.separated(
           physics: BouncingScrollPhysics(),
           itemBuilder: (context, index){
