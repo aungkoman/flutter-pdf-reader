@@ -29,6 +29,8 @@ class _ContentListPageState extends State<ContentListPage> {
   bool _isAdLoaded = false;
 
 
+
+  InterstitialAd _interstitialAd;
   @override
   void initState() {
     // TODO: implement initState
@@ -94,6 +96,35 @@ class _ContentListPageState extends State<ContentListPage> {
     // TODO: Load an ad
     _ad.load();
 
+
+    // load interstitial ad
+    InterstitialAd.load(
+        adUnitId: AdHelper.interstitialAdUnitId,
+        request: AdRequest(),
+        adLoadCallback: InterstitialAdLoadCallback(
+          onAdLoaded: (InterstitialAd ad) {
+            // Keep a reference to the ad so you can show it later.
+            print("InterstitialAd loaded");
+            this._interstitialAd = ad;
+            _interstitialAd.fullScreenContentCallback = FullScreenContentCallback(
+              onAdShowedFullScreenContent: (InterstitialAd ad) =>
+                  print('$ad onAdShowedFullScreenContent.'),
+              onAdDismissedFullScreenContent: (InterstitialAd ad) {
+                print('$ad onAdDismissedFullScreenContent.');
+                ad.dispose();
+              },
+              onAdFailedToShowFullScreenContent: (InterstitialAd ad, AdError error) {
+                print('$ad onAdFailedToShowFullScreenContent: $error');
+                ad.dispose();
+              },
+              onAdImpression: (InterstitialAd ad) => print('$ad impression occurred.'),
+            );
+          },
+          onAdFailedToLoad: (LoadAdError error) {
+            print('InterstitialAd failed to load: $error');
+          },
+        )
+    );
   }
 
   Widget _adContainer(){
@@ -134,12 +165,16 @@ class _ContentListPageState extends State<ContentListPage> {
       child: ListView.separated(
           physics: BouncingScrollPhysics(),
           itemBuilder: (context, index){
+            return pdfListTileWidget(pdfContentDataList[index]);
+            /*
             return PdfContentListTile(
               pdfContentData: pdfContentDataList[index],
               callback: (){
                 Navigator.pushNamed(context, PdfViewerPage.routeName,arguments: pdfContentDataList[index].page);
                 },
             );
+
+             */
             /*
             return ListTile(
               title: Text(pdfContentDataList[index].title),
@@ -151,6 +186,97 @@ class _ContentListPageState extends State<ContentListPage> {
              */
           },
           separatorBuilder: (context,index) => Divider(), itemCount: pdfContentDataList.length),
+    );
+  }
+
+  void callback(int page)async{
+    print("callback is called for page $page");
+    try{
+      _interstitialAd.show();
+    }
+    catch(exp){
+      print("can't show _interstitialAd");
+      print(exp);
+    }
+    dynamic result = await Navigator.pushNamed(context, PdfViewerPage.routeName,arguments: page);
+    if(result == null){
+
+
+
+      // load interstitial ad
+      InterstitialAd.load(
+          adUnitId: AdHelper.interstitialAdUnitId,
+          request: AdRequest(),
+          adLoadCallback: InterstitialAdLoadCallback(
+            onAdLoaded: (InterstitialAd ad) {
+              // Keep a reference to the ad so you can show it later.
+              print("InterstitialAd loaded");
+              this._interstitialAd = ad;
+              _interstitialAd.fullScreenContentCallback = FullScreenContentCallback(
+                onAdShowedFullScreenContent: (InterstitialAd ad) =>
+                    print('$ad onAdShowedFullScreenContent.'),
+                onAdDismissedFullScreenContent: (InterstitialAd ad) {
+                  print('$ad onAdDismissedFullScreenContent.');
+                  ad.dispose();
+                },
+                onAdFailedToShowFullScreenContent: (InterstitialAd ad, AdError error) {
+                  print('$ad onAdFailedToShowFullScreenContent: $error');
+                  ad.dispose();
+                },
+                onAdImpression: (InterstitialAd ad) => print('$ad impression occurred.'),
+              );
+            },
+            onAdFailedToLoad: (LoadAdError error) {
+              print('InterstitialAd failed to load: $error');
+            },
+          )
+      );
+    }
+  }
+  Widget pdfListTileWidget(PdfContentData pdfContentData){
+    return InkWell(
+      onTap: (){
+        print("PdfCOntentListTile onTap");
+        callback(pdfContentData.page);
+      },
+      child: Container(
+        padding: EdgeInsets.all(8),
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.only(
+              topLeft: const Radius.circular(40.0),
+
+            ),
+            gradient: LinearGradient(
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+                colors: [
+                  Colors.blue.shade800,
+                  Colors.lightBlueAccent
+                ]
+            ),
+            boxShadow: [
+              BoxShadow(
+                  color: Colors.blue,
+                  blurRadius: 12,
+                  offset: Offset(0,6)
+              )
+            ]
+        ),
+        child: Row(
+          children: [
+            Expanded(
+                flex: 1,
+                child: Image.asset("assets/images/app_icon.png")),
+            Expanded(
+              flex: 3,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Center(child: Text(pdfContentData.title,style: TextStyle(color: Colors.yellow, fontSize: 16, fontWeight: FontWeight.bold),)),
+              ),
+            )
+          ],
+        ),
+      ),
     );
   }
 }
