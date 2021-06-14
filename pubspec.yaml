@@ -32,9 +32,13 @@ dependencies:
   # admob
   google_mobile_ads: ^0.13.0
 dev_dependencies:
+  flutter_launcher_icons: "^0.8.0"
   flutter_test:
     sdk: flutter
-
+flutter_icons:
+  android: false
+  ios: true
+  image_path: "assets/images/app_icon.jpg"
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
